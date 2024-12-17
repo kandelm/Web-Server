@@ -28,8 +28,8 @@ This project involves setting up a **LAMP stack** (Linux, Apache, MySQL, PHP) on
 2. **Create a Project**: In the GCP Console, create a new project (e.g., `Web-Server-Project`).
 3. **Create a Virtual Machine**:
    - Navigate to **Compute Engine** → **VM Instances** → **Create Instance**.
-   - Select an **Ubuntu image** (e.g., Ubuntu 22.04 LTS).
-   - Set the **machine type** (e.g., `e2-micro`).
+   - Select an **Ubuntu image** (Ubuntu 22.04 LTS).
+   - Set the **machine type** (`e2-micro`).
    - Check **Allow HTTP traffic** and **Allow HTTPS traffic** in the firewall section.
    - Click **Create**.
 4. Once the VM is created, note down the **External IP** for later use.
@@ -38,7 +38,7 @@ This project involves setting up a **LAMP stack** (Linux, Apache, MySQL, PHP) on
 To install **Apache**, **MySQL**, and **PHP** on your GCP VM:
 1. SSH into your VM instance:
    ```bash
-   ssh username@<your-vm-ip>
+   ssh mahmoudkandel323@35.226.226.112
    ```
 2. Run the following commands to install the packages:
    ```bash
@@ -48,7 +48,7 @@ To install **Apache**, **MySQL**, and **PHP** on your GCP VM:
 
 ### Configure Apache
 1. Test that Apache is running:
-   - In your browser, go to `http://<your-vm-ip>`. You should see the Apache default page.
+   - In your browser, go to `http://35.226.226.112`. You should see the Apache default page.
 2. Create a simple HTML test page:
    ```bash
    echo "Hello Apache!" > /var/www/html/index.html
@@ -91,17 +91,13 @@ To install **Apache**, **MySQL**, and **PHP** on your GCP VM:
    \$conn->close();
    ?>" > /var/www/html/index.php
    ```
-2. Visit `http://<your-vm-ip>/` again to verify that it now shows the visitor’s IP and the current time.
+2. Visit `http://35.226.226.112/` again to verify that it now shows the visitor’s IP and the current time.
 
 ### Testing Locally
-Ensure that everything is working correctly by accessing your website at `http://<your-vm-ip>/`.
+Ensure that everything is working correctly by accessing your website at `http://35.226.226.112/`.
 
 ### Make the Website Publicly Accessible
 1. **Set Up Firewall**: Ensure the firewall allows HTTP (port 80) and HTTPS (port 443) traffic. This can be done in the **GCP firewall rules** or **VM settings**.
-2. **Obtain a Public IP or Domain**: Use the **external IP** provided by GCP or set up a domain name (e.g., `your-domain.com`) pointing to your server’s IP.
-3. **Configure DNS**: If you’re using a domain, configure your **DNS records** to point to the public IP.
-   - Add an **A record** in your domain registrar’s DNS settings, pointing to your VM's public IP.
-4. **Test**: Open your browser and type `http://your-domain.com` to check if the site is publicly accessible.
 
 ---
 
@@ -170,15 +166,15 @@ To connect to your cloud-based Linux instance remotely, use **SSH**. Here are th
    ```
 3. **Generate an SSH key** on your local machine (if you don’t have one already):
    ```bash
-   ssh-keygen -t ed25519 -C "your_email@example.com"
+   ssh-keygen -t ed25519 -C "mahmoudkandel323@gmail.com"
    ```
 4. **Copy the SSH key** to your cloud instance:
    ```bash
-   ssh-copy-id username@<your-vm-ip>
+   ssh-copy-id mahmoudkandel323@35.226.226.112
    ```
 5. **SSH into the instance**:
    ```bash
-   ssh username@<your-vm-ip>
+   ssh mahmoudkandel323@35.226.226.112
    ```
 
 ---
@@ -190,4 +186,4 @@ To connect to your cloud-based Linux instance remotely, use **SSH**. Here are th
 
 ---
 
-### **End of README**
+### **The End of README**
