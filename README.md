@@ -2,7 +2,7 @@
 # Web Server Setup (LAMP Stack)
 
 ## Overview
-This project involves setting up a basic **LAMP stack** (Linux, Apache, MySQL, PHP) on a Linux machine. The task includes configuring the Apache server, creating a simple PHP-based website, integrating a MySQL database, and making the website accessible externally via a public URL. Additionally, version control is managed using **Git**, and the project is pushed to **GitHub**.
+This project involves setting up a **LAMP stack** (Linux, Apache, MySQL, PHP) on a **Google Cloud Platform (GCP)** virtual machine (VM). The task includes configuring the Apache server, creating a simple PHP-based website, integrating a MySQL database, and making the website accessible externally via a public URL. Additionally, version control is managed using **Git**, and the project is pushed to **GitHub**.
 
 ## Table of Contents
 1. [LAMP Stack Setup](#lamp-stack-setup)
@@ -23,35 +23,53 @@ This project involves setting up a basic **LAMP stack** (Linux, Apache, MySQL, P
 
 ## LAMP Stack Setup
 
+### Create a GCP VM Instance
+1. **Log in to GCP Console**: Go to [Google Cloud Console](https://console.cloud.google.com/).
+2. **Create a Project**: In the GCP Console, create a new project (e.g., `Web-Server-Project`).
+3. **Create a Virtual Machine**:
+   - Navigate to **Compute Engine** → **VM Instances** → **Create Instance**.
+   - Select an **Ubuntu image** (e.g., Ubuntu 22.04 LTS).
+   - Set the **machine type** (e.g., `e2-micro`).
+   - Check **Allow HTTP traffic** and **Allow HTTPS traffic** in the firewall section.
+   - Click **Create**.
+4. Once the VM is created, note down the **External IP** for later use.
+
 ### Install Required Packages
-To install Apache, MySQL, and PHP on your Linux machine, run the following commands:
-```bash
-sudo apt-get update
-sudo apt-get install apache2 mysql-server php libapache2-mod-php php-mysql -y
-```
+To install **Apache**, **MySQL**, and **PHP** on your GCP VM:
+1. SSH into your VM instance:
+   ```bash
+   ssh username@<your-vm-ip>
+   ```
+2. Run the following commands to install the packages:
+   ```bash
+   sudo apt-get update
+   sudo apt-get install apache2 mysql-server php libapache2-mod-php php-mysql -y
+   ```
 
 ### Configure Apache
-1. Create a test HTML file in the `/var/www/html/` directory:
+1. Test that Apache is running:
+   - In your browser, go to `http://<your-vm-ip>`. You should see the Apache default page.
+2. Create a simple HTML test page:
    ```bash
    echo "Hello Apache!" > /var/www/html/index.html
    ```
-2. Visit `http://<server-ip>/` in your browser to confirm that Apache is working correctly.
 
 ### Create a Simple Website
-1. Replace the `index.html` file with a simple PHP file:
+1. Replace the HTML file with a PHP script:
    ```bash
    echo "<?php echo 'Hello World!'; ?>" > /var/www/html/index.php
    ```
-2. Visit `http://<server-ip>/` again to check that it shows "Hello World!".
+2. Visit `http://<your-vm-ip>/` in your browser to confirm that it displays **"Hello World!"**.
 
 ### Configure MySQL
-1. Secure the MySQL installation:
+1. Secure MySQL:
    ```bash
    sudo mysql_secure_installation
    ```
    Follow the prompts to set the root password.
-2. Create a new database and user:
+2. Create a database and user:
    ```sql
+   sudo mysql
    CREATE DATABASE web_db;
    CREATE USER 'web_user'@'localhost' IDENTIFIED BY 'StrongPassword123';
    GRANT ALL PRIVILEGES ON web_db.* TO 'web_user'@'localhost';
@@ -60,40 +78,44 @@ sudo apt-get install apache2 mysql-server php libapache2-mod-php php-mysql -y
    ```
 
 ### Modify the Website to Use the Database
-1. Update the `index.php` file to connect to MySQL and display the visitor's IP address and the current time:
-   ```php
-   <?php
-   $conn = new mysqli('localhost', 'web_user', 'StrongPassword123', 'web_db');
-   if ($conn->connect_error) {
-       die("Connection failed: " . $conn->connect_error);
+1. Edit `index.php` to display the visitor’s IP address and current time from the MySQL database:
+   ```bash
+   echo "<?php
+   \$conn = new mysqli('localhost', 'web_user', 'StrongPassword123', 'web_db');
+   if (\$conn->connect_error) {
+       die('Connection failed: ' . \$conn->connect_error);
    }
-   $time = date('Y-m-d H:i:s');
-   $ip = $_SERVER['REMOTE_ADDR'];
-   echo "Visitor IP: $ip <br> Current Time: $time";
-   $conn->close();
-   ?>
+   \$time = date('Y-m-d H:i:s');
+   \$ip = \$_SERVER['REMOTE_ADDR'];
+   echo 'Visitor IP: ' . \$ip . '<br> Current Time: ' . \$time;
+   \$conn->close();
+   ?>" > /var/www/html/index.php
    ```
-2. Visit `http://<server-ip>/` to check that the visitor's IP and current time are displayed.
+2. Visit `http://<your-vm-ip>/` again to verify that it now shows the visitor’s IP and the current time.
 
 ### Testing Locally
-Ensure that everything works by accessing the website at `http://<server-ip>/`.
+Ensure that everything is working correctly by accessing your website at `http://<your-vm-ip>/`.
 
 ### Make the Website Publicly Accessible
-1. Configure firewall rules to allow HTTP (port 80) and HTTPS (port 443) traffic.
-2. Obtain a public IP address or a domain name pointing to your server.
-3. Update your DNS settings to point the domain to your server's public IP.
-4. Test the external accessibility of your website.
+1. **Set Up Firewall**: Ensure the firewall allows HTTP (port 80) and HTTPS (port 443) traffic. This can be done in the **GCP firewall rules** or **VM settings**.
+2. **Obtain a Public IP or Domain**: Use the **external IP** provided by GCP or set up a domain name (e.g., `your-domain.com`) pointing to your server’s IP.
+3. **Configure DNS**: If you’re using a domain, configure your **DNS records** to point to the public IP.
+   - Add an **A record** in your domain registrar’s DNS settings, pointing to your VM's public IP.
+4. **Test**: Open your browser and type `http://your-domain.com` to check if the site is publicly accessible.
 
 ---
 
 ## Git & GitHub
 
 ### Initialize Git Locally
-Initialize a Git repository in the project directory:
-```bash
-cd /var/www/html
-git init
-```
+1. Navigate to your project folder:
+   ```bash
+   cd /var/www/html
+   ```
+2. Initialize the Git repository:
+   ```bash
+   git init
+   ```
 
 ### Create a `.gitignore` File
 Create a `.gitignore` file to exclude sensitive files (e.g., database credentials):
@@ -102,8 +124,7 @@ echo "config.php" > .gitignore
 ```
 
 ### Commit Your Documentation & Source Code
-1. Create a `README.md` file with instructions.
-2. Add and commit your changes:
+1. Add and commit your changes:
    ```bash
    git add .
    git commit -m "Initial LAMP setup and documentation"
@@ -111,9 +132,12 @@ echo "config.php" > .gitignore
 
 ### Create and Push to a GitHub Repository
 1. Create a repository on GitHub.
-2. Add the GitHub repository as a remote and push:
+2. Add the GitHub repository as a remote:
    ```bash
    git remote add origin https://github.com/kandelm/Web-Server.git
+   ```
+3. Push the changes to GitHub:
+   ```bash
    git push -u origin main
    ```
 
@@ -122,53 +146,45 @@ echo "config.php" > .gitignore
 ## Networking Basics
 
 ### 1. IP Address
-An **IP address** (Internet Protocol address) is a unique identifier for a device on a network. It is used to route data to and from the correct device. There are two types:
-- **IPv4**: A 32-bit address, typically written as four decimal numbers separated by dots (e.g., `192.168.1.1`).
-- **IPv6**: A 128-bit address, written in hexadecimal form (e.g., `2001:0db8:85a3:0000:0000:8a2e:0370:7334`).
-
-**Purpose**: To identify devices and facilitate communication across networks, such as the internet.
+An **IP address** (Internet Protocol address) is a unique identifier for a device on a network. It is used to route data between devices across networks. It is essential for identifying devices and ensuring proper data routing.
 
 ### 2. MAC Address
-A **MAC address** (Media Access Control address) is a unique identifier assigned to the network interface of a device, used to ensure that data is delivered to the correct hardware within a local network. It is a hardware address assigned by the manufacturer and typically written in hexadecimal form (e.g., `00:1A:2B:3C:4D:5E`).
+A **MAC address** (Media Access Control address) is a unique hardware identifier assigned to a network device. It is used to identify devices at the data link layer of a network, and it is important for local network communication.
 
-**Purpose**: The MAC address ensures the correct delivery of data packets on the local network and is used for network communication within the same subnet. 
-
-**Difference from IP Address**:
-- **IP address**: Used to identify devices on a network and route traffic across the internet.
-- **MAC address**: Used to identify devices at the hardware level, within a local network.
+**Difference from IP address**:
+- **IP Address**: Identifies a device on a network (used for routing).
+- **MAC Address**: Identifies a device on the local network (used within the same network).
 
 ### 3. Switches, Routers, and Routing Protocols
-- **Switch**: A device that connects devices within the same network. It uses MAC addresses to forward data to the correct destination device.
-- **Router**: A device that connects different networks (such as your local network to the internet). It uses IP addresses to route data between networks.
-- **Routing Protocols**: Protocols such as **OSPF** and **BGP** are used by routers to determine the best path for data to travel between networks.
+- **Switch**: A device that connects devices within the same network and forwards data based on MAC addresses.
+- **Router**: A device that connects different networks (such as local networks and the internet), using IP addresses to route data.
+- **Routing Protocols**: These protocols (e.g., OSPF, BGP) help routers determine the best paths for data transmission between networks.
 
 ### 4. Remote Connection to Cloud Instance
-To connect to your cloud-based Linux instance remotely, you can use **SSH (Secure Shell)**. Here are the steps:
+To connect to your cloud-based Linux instance remotely, use **SSH**. Here are the steps:
 
-1. **Obtain the IP address** of your cloud-based server.
-2. **Ensure SSH is installed** on your server:
+1. **Obtain the IP address** of your cloud instance.
+2. **Ensure SSH is enabled** on your VM:
    ```bash
    sudo apt-get install openssh-server
    ```
-3. **Generate an SSH key pair** on your local machine if you don't already have one:
+3. **Generate an SSH key** on your local machine (if you don’t have one already):
    ```bash
    ssh-keygen -t ed25519 -C "your_email@example.com"
    ```
-4. **Copy your public SSH key to your cloud instance**:
+4. **Copy the SSH key** to your cloud instance:
    ```bash
-   ssh-copy-id username@<server-ip>
+   ssh-copy-id username@<your-vm-ip>
    ```
-   Replace `username` with the user on your cloud instance (e.g., `ubuntu`), and `<server-ip>` with the IP address of your server.
-
-5. **Connect using SSH**:
+5. **SSH into the instance**:
    ```bash
-   ssh username@<server-ip>
+   ssh username@<your-vm-ip>
    ```
 
 ---
 
 ## Deliverables
-1. **Documentation (Markdown File)**: A step-by-step guide on setting up the LAMP stack, using Git, and explaining networking concepts.
+1. **Documentation (Markdown File)**: This file contains the step-by-step guide on setting up the LAMP stack, using Git, and explaining networking concepts.
 2. **GitHub Repository**: A repository containing your code, configuration files, and documentation.
 3. **Public URL**: A link to your website, confirming it is publicly accessible.
 
